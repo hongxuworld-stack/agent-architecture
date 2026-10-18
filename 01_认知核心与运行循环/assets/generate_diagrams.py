@@ -1,0 +1,470 @@
+import os
+import subprocess
+
+assets_dir = "/Users/hongxu/Documents/antigravity/agent/01_认知核心与运行循环/assets"
+os.makedirs(assets_dir, exist_ok=True)
+
+# -------------------------------------------------------------
+# 1. Diagram: 01_control_loop.svg
+# -------------------------------------------------------------
+svg_control_loop = """<svg width="1000" height="780" viewBox="0 0 1000 780" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="card-shadow" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.06"/>
+    </filter>
+    <filter id="pill-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#0f172a" flood-opacity="0.08"/>
+    </filter>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#16a34a"/>
+    </marker>
+    <marker id="arrow-purple" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#9333ea"/>
+    </marker>
+    <marker id="arrow-orange" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#ea580c"/>
+    </marker>
+    <marker id="arrow-teal" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#0d9488"/>
+    </marker>
+    <marker id="arrow-pink" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#db2777"/>
+    </marker>
+  </defs>
+
+  <!-- Canvas Background -->
+  <rect width="1000" height="780" fill="#f8fafc" rx="16"/>
+  <rect x="15" y="15" width="970" height="750" fill="#ffffff" rx="14" stroke="#e2e8f0" stroke-width="1.5"/>
+
+  <!-- Title Banner -->
+  <text x="500" y="52" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="22" font-weight="700" fill="#0f172a" text-anchor="middle">🔄 Agent 闭环自主控制回路 (Autonomous Control Loop)</text>
+  <text x="500" y="76" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="400" fill="#64748b" text-anchor="middle">从感知输入、记忆规章检索、思考规划到物理工具派发与动态反思自愈的完整生命周期</text>
+
+  <!-- Step 1: Perception -->
+  <g transform="translate(180, 105)" filter="url(#card-shadow)">
+    <rect width="500" height="72" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+    <text x="250" y="32" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="700" fill="#1e3a8a" text-anchor="middle">📥 1. 感知与输入 (Perception)</text>
+    <text x="250" y="54" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" fill="#1e40af" text-anchor="middle">捕获用户意图 / 工作区文件变动 / 定时器与外部系统事件</text>
+  </g>
+
+  <!-- Arrow 1 -> 2 -->
+  <path d="M 430 177 L 430 205" stroke="#2563eb" stroke-width="2.5" fill="none" marker-end="url(#arrow-blue)"/>
+
+  <!-- Step 2: Memory & Skills -->
+  <g transform="translate(180, 207)" filter="url(#card-shadow)">
+    <rect width="500" height="72" rx="10" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+    <text x="250" y="32" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="700" fill="#14532d" text-anchor="middle">🧠 2. 分层记忆与技能检索 (Memory &amp; Skills)</text>
+    <text x="250" y="54" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" fill="#166534" text-anchor="middle">动态检索加载 L1 活跃上下文 + L2 任务便签 + L3 领域技能规章 (Skills SOP)</text>
+  </g>
+
+  <!-- Arrow 2 -> 3 -->
+  <path d="M 430 279 L 430 307" stroke="#16a34a" stroke-width="2.5" fill="none" marker-end="url(#arrow-green)"/>
+
+  <!-- Step 3: Thinking / Planning -->
+  <g transform="translate(180, 309)" filter="url(#card-shadow)">
+    <rect width="500" height="74" rx="10" fill="#faf5ff" stroke="#9333ea" stroke-width="2.5"/>
+    <text x="250" y="32" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="700" fill="#581c87" text-anchor="middle">🤔 3. 认知规划与思维链 (Thinking)</text>
+    <text x="250" y="54" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" fill="#6b21a8" text-anchor="middle">结合先验规约自省推演，生成结构化动作决策 π(a|s)</text>
+  </g>
+
+  <!-- Arrow 3 -> 4 -->
+  <path d="M 430 383 L 430 411" stroke="#9333ea" stroke-width="2.5" fill="none" marker-end="url(#arrow-purple)"/>
+
+  <!-- Step 4: Action -->
+  <g transform="translate(180, 413)" filter="url(#card-shadow)">
+    <rect width="500" height="72" rx="10" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+    <text x="250" y="32" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="700" fill="#7c2d12" text-anchor="middle">⚡ 4. 工具派发与执行 (Action)</text>
+    <text x="250" y="54" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" fill="#9a3412" text-anchor="middle">系统底层调用 · 精准代码改写 · 终端沙箱命令执行</text>
+  </g>
+
+  <!-- Arrow 4 -> 5 (Side-effect) -->
+  <path d="M 430 485 L 430 527" stroke="#ea580c" stroke-width="3" stroke-dasharray="6,4" fill="none" marker-end="url(#arrow-orange)"/>
+  <g transform="translate(430, 506)" filter="url(#pill-shadow)">
+    <rect x="-105" y="-13" width="210" height="26" rx="13" fill="#fff7ed" stroke="#ea580c" stroke-width="1.2"/>
+    <text x="0" y="4" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#c2410c" text-anchor="middle">引发客观物理世界副作用</text>
+  </g>
+
+  <!-- Step 5: Observation -->
+  <g transform="translate(180, 529)" filter="url(#card-shadow)">
+    <rect width="500" height="72" rx="10" fill="#f0fdfa" stroke="#0d9488" stroke-width="2"/>
+    <text x="250" y="32" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="700" fill="#134e4a" text-anchor="middle">👁️ 5. 物理环境回显感知 (Observation)</text>
+    <text x="250" y="54" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" fill="#115e59" text-anchor="middle">捕获真实世界 ExitCode · Stdout · 异常堆栈与文件更新</text>
+  </g>
+
+  <!-- Arrow 5 -> 6 -->
+  <path d="M 430 601 L 430 629" stroke="#0d9488" stroke-width="2.5" fill="none" marker-end="url(#arrow-teal)"/>
+
+  <!-- Step 6: Reflection -->
+  <g transform="translate(180, 631)" filter="url(#card-shadow)">
+    <rect width="500" height="72" rx="10" fill="#fdf2f8" stroke="#db2777" stroke-width="2"/>
+    <text x="250" y="32" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="700" fill="#831843" text-anchor="middle">🛡️ 6. 动态反思与自愈 (Reflection)</text>
+    <text x="250" y="54" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" fill="#9d174d" text-anchor="middle">评估当前执行与终态目标的偏离度，纠正死循环震荡</text>
+  </g>
+
+  <!-- Feedback Loop: Step 6 back to Step 3 -->
+  <path d="M 680 667 C 880 667, 880 346, 688 346" stroke="#db2777" stroke-width="3" stroke-dasharray="7,4" fill="none" marker-end="url(#arrow-pink)"/>
+  <g transform="translate(860, 506)" filter="url(#pill-shadow)">
+    <rect x="-95" y="-20" width="190" height="40" rx="20" fill="#fdf2f8" stroke="#db2777" stroke-width="1.5"/>
+    <text x="0" y="-3" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#9d174d" text-anchor="middle">修正认知并迭代下一步</text>
+    <text x="0" y="13" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#be185d" text-anchor="middle">闭环输入 ➔ 触发重规划</text>
+  </g>
+</svg>"""
+
+with open(f"{assets_dir}/01_control_loop.svg", "w", encoding="utf-8") as f:
+    f.write(svg_control_loop)
+
+print("Saved: 01_control_loop.svg")
+
+
+# -------------------------------------------------------------
+# 2. Diagram: 01_hybrid_architecture.svg (PERFECTED ROUTING)
+# -------------------------------------------------------------
+# In this refined layout:
+# - L1 cards: Subcard 1 (width=310, x=25..335), Subcard 2 (width=310, x=380..690), Subcard 3 (width=310, x=735..1045)
+# - Vertical corridor between Subcard 1 and 2: x = 335..380 (width 45px, center 357)
+# - Worker A (width 280, x=25..305), Worker B (width 280, x=375..655)
+# - From Worker outputs, merge into corridor at x=340, go up cleanly through corridor (no card overlapping!), curve into L0 Node 3!
+svg_hybrid = """<svg width="1200" height="920" viewBox="0 0 1200 920" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="box-shadow" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.07"/>
+    </filter>
+    <filter id="badge-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#0f172a" flood-opacity="0.1"/>
+    </filter>
+    <marker id="arr-indigo" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#4f46e5"/>
+    </marker>
+    <marker id="arr-purple" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#9333ea"/>
+    </marker>
+    <marker id="arr-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#059669"/>
+    </marker>
+    <marker id="arr-teal" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#0d9488"/>
+    </marker>
+    <marker id="arr-red" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#e11d48"/>
+    </marker>
+  </defs>
+
+  <!-- Global Canvas -->
+  <rect width="1200" height="920" fill="#f8fafc" rx="16"/>
+  <rect x="15" y="15" width="1170" height="890" fill="#ffffff" rx="14" stroke="#e2e8f0" stroke-width="1.5"/>
+
+  <!-- Header Title Banner -->
+  <text x="600" y="48" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="22" font-weight="700" fill="#0f172a" text-anchor="middle">现代工业级 Agent 多架构混合并用体制</text>
+  <text x="600" y="70" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="400" fill="#64748b" text-anchor="middle">四层分立与多架构嵌套体系 (Deterministic FSM + Plan-and-Execute DAG + ReAct Workers + Reflexion Loop Breaker)</text>
+
+  <!-- ========================================================= -->
+  <!-- 1. L0 FSM Container -->
+  <!-- ========================================================= -->
+  <g transform="translate(35, 95)" filter="url(#box-shadow)">
+    <!-- Container Outline -->
+    <rect width="1130" height="180" rx="12" fill="#f8faff" stroke="#6366f1" stroke-width="2"/>
+    <rect x="0" y="0" width="1130" height="36" rx="12" fill="#e0e7ff"/>
+    <rect x="0" y="24" width="1130" height="12" fill="#e0e7ff"/>
+    <text x="20" y="24" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#1e1b4b">🚦【L0 顶层业务图机】确定性有限状态机 (Deterministic FSM · 硬编码工程红线)</text>
+
+    <!-- FSM Node 1 -->
+    <g transform="translate(25, 55)">
+      <rect width="150" height="85" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+      <rect x="0" y="0" width="150" height="24" rx="8" fill="#f1f5f9"/>
+      <rect x="0" y="16" width="150" height="8" fill="#f1f5f9"/>
+      <text x="75" y="17" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#334155" text-anchor="middle">1. 需求澄清态</text>
+      <text x="75" y="44" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#475569" text-anchor="middle">意图模糊主动拦截</text>
+      <text x="75" y="62" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#64748b" text-anchor="middle">触发 ask_question</text>
+      <text x="75" y="75" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#64748b" text-anchor="middle">阻断盲目假设开工</text>
+    </g>
+
+    <!-- Arrow 1 -> 2 -->
+    <path d="M 177 97 L 205 97" stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#arr-indigo)"/>
+
+    <!-- FSM Node 2 -->
+    <g transform="translate(210, 55)">
+      <rect width="155" height="85" rx="8" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="1.8"/>
+      <rect x="0" y="0" width="155" height="24" rx="8" fill="#ede9fe"/>
+      <rect x="0" y="16" width="155" height="8" fill="#ede9fe"/>
+      <text x="77" y="17" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#4c1d95" text-anchor="middle">2. 方案设计态</text>
+      <text x="77" y="44" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#6d28d9" text-anchor="middle">驱动宏观架构规划</text>
+      <text x="77" y="62" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#7c3aed" text-anchor="middle">生成任务拓扑依赖</text>
+      <text x="77" y="75" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#7c3aed" text-anchor="middle">向下驱动 L1 DAG</text>
+    </g>
+
+    <!-- Arrow 2 -> 3 -->
+    <path d="M 367 97 L 395 97" stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#arr-indigo)"/>
+
+    <!-- FSM Node 3 -->
+    <g transform="translate(400, 55)">
+      <rect width="155" height="85" rx="8" fill="#f0fdf4" stroke="#10b981" stroke-width="1.8"/>
+      <rect x="0" y="0" width="155" height="24" rx="8" fill="#dcfce7"/>
+      <rect x="0" y="16" width="155" height="8" fill="#dcfce7"/>
+      <text x="77" y="17" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#14532d" text-anchor="middle">3. 自动化开发态</text>
+      <text x="77" y="44" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#15803d" text-anchor="middle">解耦派发执行单元</text>
+      <text x="77" y="62" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#166534" text-anchor="middle">汇聚 L2 ReAct 产物</text>
+      <text x="77" y="75" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#166534" text-anchor="middle">代码落地工作区</text>
+    </g>
+
+    <!-- Arrow 3 -> 4 -->
+    <path d="M 557 97 L 585 97" stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#arr-indigo)"/>
+
+    <!-- FSM Node 4: Quality Gate -->
+    <g transform="translate(590, 55)">
+      <rect width="155" height="85" rx="8" fill="#fefce8" stroke="#f59e0b" stroke-width="2"/>
+      <rect x="0" y="0" width="155" height="24" rx="8" fill="#fef3c7"/>
+      <rect x="0" y="16" width="155" height="8" fill="#fef3c7"/>
+      <text x="77" y="17" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#78350f" text-anchor="middle">4. 严苛单测回归</text>
+      <text x="77" y="44" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" fill="#b45309" text-anchor="middle">ExitCode == 0 ?</text>
+      <text x="77" y="62" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#92400e" text-anchor="middle">严格单测与构建验证</text>
+      <text x="77" y="75" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#92400e" text-anchor="middle">不通过坚决不放行</text>
+    </g>
+
+    <!-- Arrow 4 -> 5: Pass -->
+    <path d="M 747 97 L 785 97" stroke="#059669" stroke-width="2.5" fill="none" marker-end="url(#arr-green)"/>
+    <g transform="translate(766, 85)" filter="url(#badge-shadow)">
+      <rect x="-22" y="-9" width="44" height="18" rx="9" fill="#dcfce7" stroke="#059669" stroke-width="1"/>
+      <text x="0" y="3.5" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="700" fill="#15803d" text-anchor="middle">通过</text>
+    </g>
+
+    <!-- Arrow 4 -> 3: Fail Loopback -->
+    <path d="M 667 142 C 667 165, 477 165, 477 144" stroke="#e11d48" stroke-width="2" stroke-dasharray="5,4" fill="none" marker-end="url(#arr-red)"/>
+    <g transform="translate(572, 165)" filter="url(#badge-shadow)">
+      <rect x="-48" y="-9" width="96" height="18" rx="9" fill="#ffe4e6" stroke="#e11d48" stroke-width="1"/>
+      <text x="0" y="3.5" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="700" fill="#be123c" text-anchor="middle">❌ 未通过打回</text>
+    </g>
+
+    <!-- FSM Node 5 -->
+    <g transform="translate(790, 55)">
+      <rect width="145" height="85" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+      <rect x="0" y="0" width="145" height="24" rx="8" fill="#f1f5f9"/>
+      <rect x="0" y="16" width="145" height="8" fill="#f1f5f9"/>
+      <text x="72" y="17" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#334155" text-anchor="middle">5. 人机协同评审</text>
+      <text x="72" y="44" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#475569" text-anchor="middle">人类介入验收</text>
+      <text x="72" y="62" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#64748b" text-anchor="middle">阻断破坏性操作</text>
+      <text x="72" y="75" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#64748b" text-anchor="middle">高危变更人工签字</text>
+    </g>
+
+    <!-- Arrow 5 -> 6 -->
+    <path d="M 937 97 L 965 97" stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#arr-indigo)"/>
+
+    <!-- FSM Node 6 -->
+    <g transform="translate(970, 55)">
+      <rect width="135" height="85" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+      <rect x="0" y="0" width="135" height="24" rx="8" fill="#dcfce7"/>
+      <rect x="0" y="16" width="135" height="8" fill="#dcfce7"/>
+      <text x="67" y="17" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#14532d" text-anchor="middle">6. 安全交付上线</text>
+      <text x="67" y="44" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#15803d" text-anchor="middle">合并主干发布</text>
+      <text x="67" y="62" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#166534" text-anchor="middle">自动生成变更日志</text>
+      <text x="67" y="75" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#166534" text-anchor="middle">任务圆满终态</text>
+    </g>
+  </g>
+
+  <!-- ========================================================= -->
+  <!-- 2. L1 ~ L3 Cognitive Subsystem Container -->
+  <!-- ========================================================= -->
+  <g transform="translate(35, 305)" filter="url(#box-shadow)">
+    <!-- Container Outline -->
+    <rect width="1130" height="575" rx="12" fill="#faf5ff" stroke="#8b5cf6" stroke-width="2"/>
+    <rect x="0" y="0" width="1130" height="36" rx="12" fill="#f3e8ff"/>
+    <rect x="0" y="24" width="1130" height="12" fill="#f3e8ff"/>
+    <text x="20" y="24" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#3b0764">⚙️【L1 ~ L3 认知规划与战术攻坚多架构混合中枢】(Dynamic Cognitive Engine)</text>
+
+    <!-- ------------------------------------------------------- -->
+    <!-- L1: Strategic Layer (Plan-and-Execute) -->
+    <!-- ------------------------------------------------------- -->
+    <g transform="translate(30, 50)">
+      <rect width="1070" height="135" rx="10" fill="#ffffff" stroke="#9333ea" stroke-width="2"/>
+      <rect x="0" y="0" width="1070" height="30" rx="10" fill="#f5f3ff"/>
+      <rect x="0" y="20" width="1070" height="10" fill="#f5f3ff"/>
+      <text x="20" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#581c87">🎯【L1 战略层】Plan-and-Execute 宏观规划中枢 (Task DAG Scheduler)</text>
+
+      <!-- Subcard 1: DAG (x=25..335, width=310) -->
+      <g transform="translate(25, 42)">
+        <rect width="310" height="78" rx="6" fill="#faf5ff" stroke="#d8b4fe" stroke-width="1.2"/>
+        <text x="15" y="24" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#6b21a8">有向无环任务图 (Task DAG)</text>
+        <text x="15" y="46" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#7e22ce">• 跨模块拓扑排序与依赖解耦</text>
+        <text x="15" y="64" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#7e22ce">• 明确多文件写入顺序时序约束</text>
+      </g>
+
+      <!-- Subcard 2: Focus Guard (x=380..690, width=310) -> Open corridor x=335..380 (width 45px) -->
+      <g transform="translate(380, 42)">
+        <rect width="310" height="78" rx="6" fill="#faf5ff" stroke="#d8b4fe" stroke-width="1.2"/>
+        <text x="15" y="24" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#6b21a8">注意力防迷失机制 (Focus Guard)</text>
+        <text x="15" y="46" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#7e22ce">• 阻断底层细节干扰宏观目标</text>
+        <text x="15" y="64" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#7e22ce">• 保持上下文干净，压制 Token 膨胀</text>
+      </g>
+
+      <!-- Subcard 3: Replanner (x=735..1045, width=310) -->
+      <g transform="translate(735, 42)">
+        <rect width="310" height="78" rx="6" fill="#faf5ff" stroke="#d8b4fe" stroke-width="1.2"/>
+        <text x="15" y="24" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#6b21a8">动态重规划中枢 (Replanner)</text>
+        <text x="15" y="46" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#7e22ce">• 接收底层 L3 熔断反思结论</text>
+        <text x="15" y="64" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#7e22ce">• 局部自愈重写未完成的 DAG 节点</text>
+      </g>
+    </g>
+
+    <!-- ------------------------------------------------------- -->
+    <!-- L2: Tactical Layer (ReAct Workers) -->
+    <!-- ------------------------------------------------------- -->
+    <g transform="translate(30, 225)">
+      <rect width="670" height="235" rx="10" fill="#ffffff" stroke="#10b981" stroke-width="2"/>
+      <rect x="0" y="0" width="670" height="30" rx="10" fill="#ecfdf5"/>
+      <rect x="0" y="20" width="670" height="10" fill="#ecfdf5"/>
+      <text x="20" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#064e3b">🛠️【L2 战术执行层】微观 ReAct 隔离攻坚单元 (Micro ReAct Workers)</text>
+
+      <!-- Worker A (x=25..315, width=290) -->
+      <g transform="translate(25, 45)">
+        <rect width="290" height="165" rx="8" fill="#f0fdf4" stroke="#059669" stroke-width="1.5"/>
+        <rect x="0" y="0" width="290" height="26" rx="8" fill="#dcfce7"/>
+        <rect x="0" y="18" width="290" height="8" fill="#dcfce7"/>
+        <text x="145" y="18" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#065f46" text-anchor="middle">⚡ ReAct 攻坚单元 A (Worker A)</text>
+        <text x="15" y="48" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#047857">专注攻坚单模块代码改写与局部校验</text>
+        <text x="15" y="70" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" fill="#065f46">• 局部文件沙箱：独立 Context · 阅后即焚</text>
+        <text x="15" y="88" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" fill="#065f46">• 极速单步执行：Thought ➔ Action ➔ Obs</text>
+        <text x="15" y="106" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" fill="#065f46">• 敏捷发现局部语法错误并快速自修</text>
+        <text x="15" y="126" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" fill="#047857" font-weight="600">→ 成功后向 L0 交付高内聚局部代码</text>
+      </g>
+
+      <!-- Worker B (x=355..645, width=290) -->
+      <g transform="translate(355, 45)">
+        <rect width="290" height="165" rx="8" fill="#f0fdf4" stroke="#059669" stroke-width="1.5"/>
+        <rect x="0" y="0" width="290" height="26" rx="8" fill="#dcfce7"/>
+        <rect x="0" y="18" width="290" height="8" fill="#dcfce7"/>
+        <text x="145" y="18" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#065f46" text-anchor="middle">⚡ ReAct 攻坚单元 B (Worker B)</text>
+        <text x="15" y="48" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#047857">并行攻坚解耦任务 (多文件写入)</text>
+        <text x="15" y="70" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" fill="#065f46">• 并行攻坚无拓扑依赖的独立文件</text>
+        <text x="15" y="88" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" fill="#065f46">• 与 Worker A 隔离运行，无锁竞争</text>
+        <text x="15" y="106" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" fill="#065f46">• 彻底根绝长会话注意力稀释灾难</text>
+        <text x="15" y="126" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" fill="#047857" font-weight="600">→ 成功后向 L0 交付高内聚局部代码</text>
+      </g>
+    </g>
+
+    <!-- ------------------------------------------------------- -->
+    <!-- L3: Reflexion Loop Breaker Layer -->
+    <!-- ------------------------------------------------------- -->
+    <g transform="translate(730, 225)">
+      <rect width="370" height="235" rx="10" fill="#ffffff" stroke="#e11d48" stroke-width="2"/>
+      <rect x="0" y="0" width="370" height="30" rx="10" fill="#ffe4e6"/>
+      <rect x="0" y="20" width="370" height="10" fill="#ffe4e6"/>
+      <text x="20" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#881337">🛡️【L3 异常熔断自愈层】Reflexion 反思中枢</text>
+
+      <!-- Inside Loop Breaker Card -->
+      <g transform="translate(20, 45)">
+        <rect width="330" height="165" rx="8" fill="#fff1f2" stroke="#f43f5e" stroke-width="1.5"/>
+        <rect x="0" y="0" width="330" height="26" rx="8" fill="#fecdd3"/>
+        <rect x="0" y="18" width="330" height="8" fill="#fecdd3"/>
+        <text x="165" y="18" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#9f1239" text-anchor="middle">🚨 动作指纹熔断器 (Loop Breaker)</text>
+
+        <text x="15" y="48" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" fill="#be123c">连续 3 次相同动作指纹报错 ➔ 强行打断</text>
+        <text x="15" y="70" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" fill="#881337">• 剥夺陷入死循环的底层 ReAct 权限</text>
+        <text x="15" y="88" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" fill="#881337">• 强制切入 Scratchpad 进行根因诊断</text>
+        <text x="15" y="106" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" fill="#881337">• 提炼反思洞见并生成纠偏决策补丁</text>
+        <text x="15" y="126" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" fill="#be123c" font-weight="700">➔ 向上回传 L1，彻底重写宏观计划 DAG</text>
+      </g>
+    </g>
+
+    <!-- Subsystem Internal Connections -->
+    <!-- L1 -> L2 Worker A -->
+    <path d="M 180 185 L 180 268" stroke="#10b981" stroke-width="2.5" fill="none" marker-end="url(#arr-green)"/>
+    <g transform="translate(180, 225)" filter="url(#badge-shadow)">
+      <rect x="-42" y="-10" width="84" height="20" rx="10" fill="#dcfce7" stroke="#10b981" stroke-width="1.2"/>
+      <text x="0" y="4" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" font-weight="700" fill="#065f46" text-anchor="middle">拓扑分发 A</text>
+    </g>
+
+    <!-- L1 -> L2 Worker B -->
+    <path d="M 500 185 L 500 268" stroke="#10b981" stroke-width="2.5" fill="none" marker-end="url(#arr-green)"/>
+    <g transform="translate(500, 225)" filter="url(#badge-shadow)">
+      <rect x="-42" y="-10" width="84" height="20" rx="10" fill="#dcfce7" stroke="#10b981" stroke-width="1.2"/>
+      <text x="0" y="4" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" font-weight="700" fill="#065f46" text-anchor="middle">拓扑分发 B</text>
+    </g>
+
+    <!-- L2 -> L3: Collision / Oscillation Trigger -->
+    <path d="M 645 365 L 748 365" stroke="#e11d48" stroke-width="2.5" stroke-dasharray="6,4" fill="none" marker-end="url(#arr-red)"/>
+    <g transform="translate(697, 345)" filter="url(#badge-shadow)">
+      <rect x="-56" y="-10" width="112" height="20" rx="10" fill="#ffe4e6" stroke="#e11d48" stroke-width="1.2"/>
+      <text x="0" y="4" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="700" fill="#be123c" text-anchor="middle">单点执行受阻/震荡</text>
+    </g>
+
+    <!-- L3 -> L1: Root cause healing replan -->
+    <path d="M 915 225 L 915 187" stroke="#9333ea" stroke-width="2.5" fill="none" marker-end="url(#arr-purple)"/>
+    <g transform="translate(915, 206)" filter="url(#badge-shadow)">
+      <rect x="-65" y="-10" width="130" height="20" rx="10" fill="#f3e8ff" stroke="#9333ea" stroke-width="1.2"/>
+      <text x="0" y="4" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="700" fill="#6b21a8" text-anchor="middle">根因自愈：重写宏观计划</text>
+    </g>
+
+    <!-- Bottom Architectural Summary Bar -->
+    <g transform="translate(30, 485)">
+      <rect width="1070" height="65" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.2"/>
+      <text x="20" y="26" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#1e293b">💡 多架构混合体系的核心设计哲学：</text>
+      <text x="20" y="48" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#475569">L0 提供确定性生命周期红线 · L1 掌控全局宏观依赖与拓扑路线 · L2 提供高效无状态的局部攻坚执行 · L3 提供强行阻断死循环的自省兜底</text>
+    </g>
+  </g>
+
+  <!-- ========================================================= -->
+  <!-- 3. Cross-Container Interconnect Lines (PIXEL-PERFECT ROUTING) -->
+  <!-- ========================================================= -->
+  <!-- Line 1: L0 Node 2 (方案设计态) -> L1 DAG (触发战略规划) -->
+  <!-- Node 2 center x = 35 + 210 + 77 = 322, bottom y = 95 + 55 + 85 = 235 -->
+  <!-- L1 DAG Subcard 1 top y = 305 + 50 + 42 = 397 -->
+  <path d="M 285 235 L 285 395" stroke="#8b5cf6" stroke-width="3" fill="none" marker-end="url(#arr-purple)"/>
+  <g transform="translate(285, 292)" filter="url(#badge-shadow)">
+    <rect x="-48" y="-11" width="96" height="22" rx="11" fill="#ede9fe" stroke="#8b5cf6" stroke-width="1.5"/>
+    <text x="0" y="4.5" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" fill="#5b21b6" text-anchor="middle">触发战略制定</text>
+  </g>
+
+  <!-- Line 2: L2 Workers -> L0 Node 3 (自动化开发态) -->
+  <!-- Clean vertical corridor between L1 Subcard 1 & 2 at x=392! -->
+  <!-- Worker A right edge (x=350) & Worker B left edge (x=420) converge at x=392, go up through corridor x=392, directly into bottom of Node 3 (x=512) -->
+  <path d="M 392 530 L 392 285 C 392 255, 470 250, 485 238" stroke="#059669" stroke-width="2.8" fill="none" marker-end="url(#arr-green)"/>
+  <g transform="translate(392, 335)" filter="url(#badge-shadow)">
+    <rect x="-56" y="-11" width="112" height="22" rx="11" fill="#dcfce7" stroke="#059669" stroke-width="1.5"/>
+    <text x="0" y="4.5" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" fill="#14532d" text-anchor="middle">交付局部代码产物</text>
+  </g>
+</svg>"""
+
+with open(f"{assets_dir}/01_hybrid_architecture.svg", "w", encoding="utf-8") as f:
+    f.write(svg_hybrid)
+
+print("Saved: 01_hybrid_architecture.svg")
+
+# -------------------------------------------------------------
+# 3. Convert both to 2x Retina PNG via Headless Chrome
+# -------------------------------------------------------------
+def convert_svg_to_png(svg_path, png_path, width, height):
+    html_wrapper = f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body {{ margin: 0; padding: 0; background: #ffffff; width: {width}px; height: {height}px; overflow: hidden; }}
+  svg {{ display: block; width: {width}px; height: {height}px; }}
+</style>
+</head>
+<body>
+{open(svg_path, 'r', encoding='utf-8').read()}
+</body>
+</html>
+"""
+    tmp_html = f"/tmp/render_{os.path.basename(svg_path)}.html"
+    with open(tmp_html, "w", encoding="utf-8") as f:
+        f.write(html_wrapper)
+    
+    cmd = [
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        "--headless",
+        "--disable-gpu",
+        "--force-device-scale-factor=2",
+        f"--screenshot={png_path}",
+        f"--window-size={width},{height}",
+        f"file://{tmp_html}"
+    ]
+    subprocess.run(cmd, check=True, capture_output=True)
+    print(f"Generated PNG: {png_path} ({os.path.getsize(png_path)} bytes)")
+
+convert_svg_to_png(f"{assets_dir}/01_control_loop.svg", f"{assets_dir}/01_control_loop.png", 1000, 780)
+convert_svg_to_png(f"{assets_dir}/01_hybrid_architecture.svg", f"{assets_dir}/01_hybrid_architecture.png", 1200, 920)
+print("All diagrams regenerated successfully!")
